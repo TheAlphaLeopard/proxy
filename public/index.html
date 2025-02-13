@@ -19,7 +19,25 @@
         document.getElementById('proxy-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const url = document.getElementById('url').value;
+            console.log(`Proxying URL: ${url}`);
             document.getElementById('proxy-frame').src = `/proxy?url=${encodeURIComponent(url)}`;
+        });
+
+        document.getElementById('proxy-frame').addEventListener('load', function() {
+            const iframe = document.getElementById('proxy-frame');
+            const iframeWindow = iframe.contentWindow;
+            const iframeDocument = iframeWindow.document;
+
+            // Intercept link clicks within the iframe
+            iframeDocument.addEventListener('click', function(event) {
+                const target = event.target;
+                if (target.tagName === 'A' && target.href) {
+                    event.preventDefault();
+                    const newUrl = target.href;
+                    console.log(`Intercepted link click: ${newUrl}`);
+                    document.getElementById('proxy-frame').src = `/proxy?url=${encodeURIComponent(newUrl)}`;
+                }
+            });
         });
     </script>
 </body>
