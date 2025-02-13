@@ -1,0 +1,24 @@
+{
+  "name": "ultraviolet-proxy",
+  "version": "1.0.0",
+  "description": "A static proxy server using Ultraviolet and Socket.IO with Express.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "express": "^4.21.2",
+    "socket-io": "^1.0.0",
+    "socket.io": "^4.0.0"
+  },
+  "keywords": [
+    "proxy",
+    "static",
+    "socket.io",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC"
+}

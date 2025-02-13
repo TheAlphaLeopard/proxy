@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultraviolet Proxy</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/ultraviolet/index.js"></script>
+</head>
+<body>
+    <h1>Ultraviolet Proxy</h1>
+    <form id="proxy-form">
+        <input type="text" id="url" placeholder="Enter URL to proxy" required>
+        <button type="submit">Go</button>
+    </form>
+    <iframe id="proxy-frame" style="width: 100%; height: 80vh;"></iframe>
+
+    <script>
+        document.getElementById('proxy-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = document.getElementById('url').value;
+            document.getElementById('proxy-frame').src = `/proxy?url=${encodeURIComponent(url)}`;
+        });
+    </script>
+</body>
+</html>
