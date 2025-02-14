@@ -63,7 +63,8 @@
 
         document.getElementById('refresh-page').addEventListener('click', function() {
             const iframe = document.getElementById('proxy-frame');
-            iframe.contentWindow.location.reload();
+            const currentSrc = iframe.src;
+            iframe.src = currentSrc;
         });
     </script>
 </body>
