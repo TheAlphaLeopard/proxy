@@ -10,10 +10,15 @@
 <body>
     <h1>Ultraviolet Proxy</h1>
     <form id="proxy-form">
+        <button type="button" id="refresh-page">Refresh</button>
         <input type="text" id="url" placeholder="Enter URL to proxy" required>
         <button type="submit">Go</button>
+        <button type="button" id="view-html">View HTML</button>
     </form>
-    <iframe id="proxy-frame" style="width: 100%; height: 80vh;"></iframe>
+    <div id="container" style="display: flex; width: 100%;">
+        <iframe id="proxy-frame" style="width: 100%; height: 80vh;"></iframe>
+        <pre id="html-viewer" style="width: 50%; height: 80vh; display: none; overflow: auto; background-color: #f0f0f0; padding: 10px;"></pre>
+    </div>
 
     <script>
         document.getElementById('proxy-form').addEventListener('submit', function(event) {
@@ -38,6 +43,27 @@
                     document.getElementById('proxy-frame').src = `/proxy?url=${encodeURIComponent(newUrl)}`;
                 }
             });
+        });
+
+        document.getElementById('view-html').addEventListener('click', function() {
+            const iframe = document.getElementById('proxy-frame');
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            const htmlContent = iframeDocument.documentElement.outerHTML;
+            const htmlViewer = document.getElementById('html-viewer');
+            htmlViewer.textContent = htmlContent;
+
+            if (htmlViewer.style.display === 'none') {
+                htmlViewer.style.display = 'block';
+                document.getElementById('proxy-frame').style.width = '50%';
+            } else {
+                htmlViewer.style.display = 'none';
+                document.getElementById('proxy-frame').style.width = '100%';
+            }
+        });
+
+        document.getElementById('refresh-page').addEventListener('click', function() {
+            const iframe = document.getElementById('proxy-frame');
+            iframe.contentWindow.location.reload();
         });
     </script>
 </body>

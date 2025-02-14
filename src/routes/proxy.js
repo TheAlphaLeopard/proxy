@@ -20,20 +20,40 @@ router.get('/', async (req, res) => {
         const contentType = response.headers['content-type'];
         if (contentType && contentType.includes('text/html')) {
             const $ = cheerio.load(response.data.toString('utf8'));
-            $('a, link, img, script').each((_, element) => {
-                const attr = $(element).attr('href') || $(element).attr('src');
-                if (attr && !attr.startsWith('http') && !attr.startsWith('//')) {
-                    const newAttr = new URL(attr, targetUrl).href;
-                    if ($(element).attr('href')) {
-                        $(element).attr('href', newAttr);
-                        console.log(`Updated href: ${attr} -> ${newAttr}`);
-                    } else {
-                        $(element).attr('src', newAttr);
-                        console.log(`Updated src: ${attr} -> ${newAttr}`);
+
+            // Regular expression to match specific file extensions
+            const fileExtensionRegex = /\.(js|css|png|ico|jpg|svg|gif|json|wasm|data|unityweb)$/;
+
+            // Function to update URLs
+            const updateUrls = () => {
+                // Update URLs in src attributes
+                $('[src]').each((_, element) => {
+                    const src = $(element).attr('src');
+                    if (src && !src.startsWith('http') && !src.startsWith('//') && fileExtensionRegex.test(src)) {
+                        const newSrc = new URL(src, targetUrl).href;
+                        $(element).attr('src', newSrc);
+                        console.log(`Updated src: ${src} -> ${newSrc}`);
                     }
-                }
-            });
-            res.send($.html());
+                });
+
+                // Update URLs in href attributes
+                $('[href]').each((_, element) => {
+                    let href = $(element).attr('href');
+                    if (href && !href.startsWith('http') && !href.startsWith('//')) {
+                        if (!fileExtensionRegex.test(href) && href.endsWith('/')) {
+                            href += 'index.html';
+                        }
+                        const newHref = new URL(href, targetUrl).href;
+                        $(element).attr('href', newHref);
+                        console.log(`Updated href: ${href} -> ${newHref}`);
+                    }
+                });
+
+                res.send($.html());
+            };
+
+            // Directly call the updateUrls function
+            updateUrls();
         } else if (contentType && contentType.startsWith('image/')) {
             res.set(response.headers);
             res.send(response.data);
@@ -43,7 +63,7 @@ router.get('/', async (req, res) => {
         }
     } catch (error) {
         console.error(`Error fetching data from ${targetUrl}:`, error.message);
-        res.status(500).send('Error fetching data');
+        res.status(500).send(`Error fetching data from ${targetUrl}: ${error.message}`);
     }
 });
 
