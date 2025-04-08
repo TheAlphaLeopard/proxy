@@ -1,71 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultraviolet Proxy</title>
-    <link rel="stylesheet" href="/styles.css">
-    <script src="/ultraviolet/index.js"></script>
+  <meta charset="UTF-8">
+  <title>Simple Proxy Browser</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: #f6ba02;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    input {
+      padding: 0.5em;
+      border: none;
+      font-size: 1em;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-    <h1>Ultraviolet Proxy</h1>
-    <form id="proxy-form">
-        <button type="button" id="refresh-page">Refresh</button>
-        <input type="text" id="url" placeholder="Enter URL to proxy" required>
-        <button type="submit">Go</button>
-        <button type="button" id="view-html">View HTML</button>
-    </form>
-    <div id="container" style="display: flex; width: 100%;">
-        <iframe id="proxy-frame" style="width: 100%; height: 80vh;"></iframe>
-        <pre id="html-viewer" style="width: 50%; height: 80vh; display: none; overflow: auto; background-color: #f0f0f0; padding: 10px;"></pre>
-    </div>
+  <input id="url-input" type="text" placeholder="Enter a URL and press Enter..." />
+  <iframe id="proxy-frame" src=""></iframe>
 
-    <script>
-        document.getElementById('proxy-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const url = document.getElementById('url').value;
-            console.log(`Proxying URL: ${url}`);
-            document.getElementById('proxy-frame').src = `/proxy?url=${encodeURIComponent(url)}`;
-        });
+  <script>
+    const input = document.getElementById('url-input');
+    const frame = document.getElementById('proxy-frame');
 
-        document.getElementById('proxy-frame').addEventListener('load', function() {
-            const iframe = document.getElementById('proxy-frame');
-            const iframeWindow = iframe.contentWindow;
-            const iframeDocument = iframeWindow.document;
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const url = input.value;
+        frame.src = `/fetch?url=${encodeURIComponent(url)}`;
+      }
+    });
 
-            // Intercept link clicks within the iframe
-            iframeDocument.addEventListener('click', function(event) {
-                const target = event.target;
-                if (target.tagName === 'A' && target.href) {
-                    event.preventDefault();
-                    const newUrl = target.href;
-                    console.log(`Intercepted link click: ${newUrl}`);
-                    document.getElementById('proxy-frame').src = `/proxy?url=${encodeURIComponent(newUrl)}`;
-                }
-            });
-        });
-
-        document.getElementById('view-html').addEventListener('click', function() {
-            const iframe = document.getElementById('proxy-frame');
-            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            const htmlContent = iframeDocument.documentElement.outerHTML;
-            const htmlViewer = document.getElementById('html-viewer');
-            htmlViewer.textContent = htmlContent;
-
-            if (htmlViewer.style.display === 'none') {
-                htmlViewer.style.display = 'block';
-                document.getElementById('proxy-frame').style.width = '50%';
-            } else {
-                htmlViewer.style.display = 'none';
-                document.getElementById('proxy-frame').style.width = '100%';
-            }
-        });
-
-        document.getElementById('refresh-page').addEventListener('click', function() {
-            const iframe = document.getElementById('proxy-frame');
-            const currentSrc = iframe.src;
-            iframe.src = currentSrc;
-        });
-    </script>
+    // Register the service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        console.log('Service Worker registered');
+      });
+    }
+  </script>
 </body>
 </html>
